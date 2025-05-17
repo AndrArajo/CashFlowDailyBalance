@@ -19,7 +19,7 @@ namespace CashFlowDailyBalance.Domain.Entities
         public decimal FinalBalance { get; set; }
 
         [Required]
-        [Column("final_balance", TypeName = "decimal(18,2)")]
+        [Column("previous_balance", TypeName = "decimal(18,2)")]
         [Range(0.01, double.MaxValue, ErrorMessage = "O valor deve ser maior que zero")]
         public decimal PreviousBalance { get; set; }
 
