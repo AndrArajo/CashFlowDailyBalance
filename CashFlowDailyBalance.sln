@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -11,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowDailyBalance.Infra.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowDailyBalance.Infra.IoC", "CashFlowDailyBalance.Infra.IoC\CashFlowDailyBalance.Infra.IoC.csproj", "{D2F3E284-BF74-4FCE-89FE-6F2D5B087D08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTransactions.API", "CashFlowTransactions.API\CashFlowTransactions.API.csproj", "{4DC611D6-78C3-4520-BF1A-4BF9B0BFF879}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowDailyBalance.API", "CashFlowDailyBalance.API\CashFlowDailyBalance.API.csproj", "{4DC611D6-78C3-4520-BF1A-4BF9B0BFF879}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
