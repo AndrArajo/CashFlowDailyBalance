@@ -1,0 +1,91 @@
+# Arquivos gerados pelo Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Arquivos de compilação
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Arquivos temporários
+.DS_Store
+*~
+*.swp
+*.bak
+*.tmp
+*.log
+
+# Visual Studio Code
+.vscode/
+.ionide/
+
+# Arquivos de JetBrains Rider
+.idea/
+*.sln.iml
+
+# Arquivos NuGet
+*.nupkg
+**/packages/*
+*.nuget.props
+*.nuget.targets
+
+# Arquivos de publicação e implantação
+PublishProfiles/
+*.pubxml
+*.publishsettings
+node_modules/
+orleans.codegen.cs
+
+# Logs e arquivos temporários
+[Ll]ogs/
+ClientBin/
+~$*
+*~
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+*.mdf
+*.ldf
+*.ndf
+
+# Arquivos específicos de teste
+TestResults/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+*.trx
+*.coverage
+*.coveragexml
+
+# Arquivos SQL Server
+*.mdf
+*.ldf
+*.ndf
+
+# Arquivos específicos da aplicação
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+!appsettings.Example.json
+
+# Outros
+.env
+.env.local 
