@@ -18,7 +18,7 @@ namespace CashFlowDailyBalance.Application.Services
 
         public async Task<DailyBalance> ProcessDailyBalanceAsync(DateTime date)
         {
-            var normalizedDate = date.Date;
+            var normalizedDate = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
             
             var transactions = await _transactionRepository.GetByDateAsync(normalizedDate);
             
@@ -31,7 +31,7 @@ namespace CashFlowDailyBalance.Application.Services
                 .Sum(t => t.Amount);
             
             var previousDay = normalizedDate.AddDays(-1);
-            var previousBalance = await GetDailyBalanceAsync(previousDay);
+            var previousBalance           = await GetDailyBalanceAsync(previousDay);
             decimal previousBalanceAmount = previousBalance?.FinalBalance ?? 0;
             
             decimal finalBalance = previousBalanceAmount + totalCredits - totalDebits;
@@ -54,22 +54,21 @@ namespace CashFlowDailyBalance.Application.Services
 
         public async Task<DailyBalance?> GetDailyBalanceAsync(DateTime date)
         {
-            var normalizedDate = date.Date;
+            var normalizedDate = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
             
             var dailyBalances = await _dailyBalanceRepository.GetAllAsync();
-            return dailyBalances.FirstOrDefault(b => b.BalanceDate?.Date == normalizedDate);
+            return dailyBalances.FirstOrDefault(b => b.BalanceDate?.Date == normalizedDate.Date);
         }
 
         public async Task<IEnumerable<DailyBalance>> GetDailyBalancesByPeriodAsync(DateTime startDate, DateTime endDate)
         {
-            var normalizedStartDate = startDate.Date;
-            var normalizedEndDate = endDate.Date;
+            var normalizedStartDate = DateTime.SpecifyKind(startDate.Date, DateTimeKind.Utc);
+            var normalizedEndDate = DateTime.SpecifyKind(endDate.Date, DateTimeKind.Utc);
             
-
             var dailyBalances = await _dailyBalanceRepository.GetAllAsync();
             return dailyBalances.Where(b => 
-                b.BalanceDate?.Date >= normalizedStartDate && 
-                b.BalanceDate?.Date <= normalizedEndDate);
+                b.BalanceDate?.Date >= normalizedStartDate.Date && 
+                b.BalanceDate?.Date <= normalizedEndDate.Date);
         }
     }
 } 

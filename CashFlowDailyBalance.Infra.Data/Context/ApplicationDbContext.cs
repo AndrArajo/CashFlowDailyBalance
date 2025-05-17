@@ -10,12 +10,21 @@ namespace CashFlowDailyBalance.Infra.Data.Context
 {
     public class ApplicationDbContext : DbContext
     {
+        public ApplicationDbContext()
+        {
+        }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<DailyBalance> DailyBalances { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+           
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Registrar serviços da aplicação
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Configurar CORS
 builder.Services.AddCors(options =>

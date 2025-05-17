@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CashFlowDailyBalance.Application\CashFlowDailyBalance.Application.csproj" />
     <ProjectReference Include="..\CashFlowDailyBalance.Domain\CashFlowDailyBalance.Domain.csproj" />
     <ProjectReference Include="..\CashFlowDailyBalance.Infra.Data\CashFlowDailyBalance.Infra.Data.csproj" />
