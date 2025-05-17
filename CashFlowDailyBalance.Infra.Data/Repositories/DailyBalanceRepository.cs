@@ -45,6 +45,25 @@ namespace CashFlowDailyBalance.Infra.Data.Repositories
                 .ToListAsync();
         }
 
+        public async Task<(IEnumerable<DailyBalance> Items, int TotalCount)> GetPaginatedAsync(int pageNumber, int pageSize)
+        {
+            // Garantir que página e tamanho sejam válidos
+            pageNumber = pageNumber <= 0 ? 1 : pageNumber;
+            pageSize = pageSize <= 0 ? 10 : pageSize;
+
+            // Obtém o total de itens
+            var totalCount = await _context.Set<DailyBalance>().CountAsync();
+
+            // Obtém os itens para a página atual
+            var items = await _context.Set<DailyBalance>()
+                .OrderByDescending(b => b.BalanceDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<DailyBalance> SaveAsync(DailyBalance dailyBalance)
         {
             // Certifique-se que as datas estão em UTC

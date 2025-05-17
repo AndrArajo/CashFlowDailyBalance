@@ -58,6 +58,35 @@ namespace CashFlowDailyBalance.API.Controllers
             }
         }
 
+        [HttpGet("paginated")]
+        public async Task<ActionResult<PaginatedResponseDto<DailyBalance>>> GetPaginatedDailyBalances(
+            [FromQuery] int page = 1, 
+            [FromQuery] int size = 10)
+        {
+            try
+            {
+                // Limitar o tamanho máximo a 10
+                size = size > 10 ? 10 : size;
+                
+                var (items, totalCount, totalPages) = await _dailyBalanceService.GetPaginatedDailyBalancesAsync(page, size);
+                
+                var response = new PaginatedResponseDto<DailyBalance>(
+                    items: items,
+                    pageNumber: page,
+                    pageSize: size,
+                    totalCount: totalCount,
+                    totalPages: totalPages
+                );
+                
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar balanços diários paginados");
+                return StatusCode(500, "Erro interno do servidor");
+            }
+        }
+
         [HttpPost("process/{date}")]
         public async Task<ActionResult<DailyBalance>> ProcessDailyBalance(DateTime date)
         {
@@ -112,11 +141,11 @@ namespace CashFlowDailyBalance.API.Controllers
                     return NotFound($"Balanço para a data {date:dd/MM/yyyy} não encontrado");
 
                 var dailyBalanceDto = new DailyBalanceDto(
-                    data: dailyBalance.BalanceDate ?? DateTime.MinValue,
-                    saldoAnterior: dailyBalance.PreviousBalance,
-                    totalCreditos: dailyBalance.TotalCredits,
-                    totalDebitos: dailyBalance.TotalDebits,
-                    saldoFinal: dailyBalance.FinalBalance
+                    date: dailyBalance.BalanceDate ?? DateTime.MinValue,
+                    previousBalance: dailyBalance.PreviousBalance,
+                    totalCredits: dailyBalance.TotalCredits,
+                    totalDebits: dailyBalance.TotalDebits,
+                    finalBalance: dailyBalance.FinalBalance
                 );
 
                 return Ok(dailyBalanceDto);

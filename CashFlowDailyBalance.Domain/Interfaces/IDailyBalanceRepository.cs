@@ -20,5 +20,7 @@ namespace CashFlowDailyBalance.Domain.Interfaces
         
  
         Task<IEnumerable<DailyBalance>> GetByPeriodAsync(DateTime startDate, DateTime endDate);
+
+        Task<(IEnumerable<DailyBalance> Items, int TotalCount)> GetPaginatedAsync(int pageNumber, int pageSize);
     }
 }
