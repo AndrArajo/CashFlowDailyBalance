@@ -25,26 +25,21 @@ namespace CashFlowDailyBalance.Application.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Serviço de agendamento de balanço diário iniciado");
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Verifica se já existe uma execução em andamento
                 if (await _semaphore.WaitAsync(0))
                 {
                     try
                     {
-                        _logger.LogInformation("Iniciando processamento de balanço diário: {time}", DateTimeOffset.Now);
                         
                         using (var scope = _serviceProvider.CreateScope())
                         {
                             var dailyBalanceService = scope.ServiceProvider.GetRequiredService<IDailyBalanceService>();
                             
-                            // Processa o balanço para o dia atual, usando UTC
                             var today = DateTime.UtcNow.Date;
                             await dailyBalanceService.ProcessDailyBalanceAsync(today);
                             
-                            _logger.LogInformation("Processamento de balanço diário concluído com sucesso para: {date}", today);
                         }
                     }
                     catch (Exception ex)

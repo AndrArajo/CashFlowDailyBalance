@@ -73,11 +73,9 @@ namespace CashFlowDailyBalance.Application.Services
         
         public async Task<(IEnumerable<DailyBalance> Items, int TotalCount, int TotalPages)> GetPaginatedDailyBalancesAsync(int pageNumber, int pageSize)
         {
-            // Validar e ajustar os parâmetros de paginação
             pageNumber = pageNumber <= 0 ? 1 : pageNumber;
             pageSize = pageSize <= 0 || pageSize > 10 ? 10 : pageSize;
             
-            // Obter os itens paginados do repositório
             var (items, totalCount) = await _dailyBalanceRepository.GetPaginatedAsync(pageNumber, pageSize);
             
             int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
