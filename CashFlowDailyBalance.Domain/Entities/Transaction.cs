@@ -42,6 +42,14 @@ namespace CashFlowDailyBalance.Domain.Entities
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [Required]
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;  
+
+        [MaxLength(100)]
+        [Column("message_id")]
+        public string? MessageId { get; set; }
+
         // Construtor para Entity Framework
         public Transaction()
         {

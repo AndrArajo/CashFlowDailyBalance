@@ -46,6 +46,11 @@ namespace CashFlowDailyBalance.Infra.Data.Context
                     .HasMaxLength(200)
                     .IsRequired(false);
 
+                entity.Property(e => e.MessageId)
+                    .HasColumnName("message_id")
+                    .HasMaxLength(100)
+                    .IsRequired(false);
+
                 entity.Property(e => e.Origin)
                     .HasColumnName("origin")
                     .HasMaxLength(100)

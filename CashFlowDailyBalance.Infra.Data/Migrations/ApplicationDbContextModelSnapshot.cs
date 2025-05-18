@@ -103,6 +103,11 @@ namespace CashFlowDailyBalance.Infra.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("type");
 
+                    b.Property<string>("MessageId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("message_id");
+
                     b.HasKey("Id");
 
                     b.ToTable("transactions", (string)null);

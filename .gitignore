@@ -89,4 +89,3 @@ appsettings.*.json
 # Outros
 .env
 .env.local 
-.env.example
