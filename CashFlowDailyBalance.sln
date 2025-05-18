@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowDailyBalance.Applic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowDailyBalance.Infra.Data.Tests", "CashFlowDailyBalance.Infra.Data.Tests\CashFlowDailyBalance.Infra.Data.Tests.csproj", "{1BBED648-1AF8-497D-A183-9CAB1AFD9289}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowDailyBalance.Infra.CrossCutting", "CashFlowDailyBalance.Infra.CrossCutting\CashFlowDailyBalance.Infra.CrossCutting.csproj", "{02D461BD-ABEF-43D5-B516-EC40AFDEF674}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,6 +127,18 @@ Global
 		{1BBED648-1AF8-497D-A183-9CAB1AFD9289}.Release|x64.Build.0 = Release|Any CPU
 		{1BBED648-1AF8-497D-A183-9CAB1AFD9289}.Release|x86.ActiveCfg = Release|Any CPU
 		{1BBED648-1AF8-497D-A183-9CAB1AFD9289}.Release|x86.Build.0 = Release|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Debug|x64.Build.0 = Debug|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Debug|x86.Build.0 = Debug|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Release|x64.ActiveCfg = Release|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Release|x64.Build.0 = Release|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Release|x86.ActiveCfg = Release|Any CPU
+		{02D461BD-ABEF-43D5-B516-EC40AFDEF674}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,8 +22,8 @@ namespace CashFlowDailyBalance.Infra.Data.Repositories
         public async Task<IEnumerable<Transaction>> GetAllAsync()
         {
             return await _context.Transactions
-                .OrderByDescending(t => t.TransactionDate)
-                .ToListAsync();
+                    .OrderByDescending(t => t.TransactionDate)
+                    .ToListAsync();
         }
 
         public async Task<IEnumerable<Transaction>> GetByDateAsync(DateTime date)
@@ -32,9 +32,9 @@ namespace CashFlowDailyBalance.Infra.Data.Repositories
             var normalizedDate = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
             
             return await _context.Transactions
-                .Where(t => t.TransactionDate.Date == normalizedDate.Date)
-                .OrderByDescending(t => t.TransactionDate)
-                .ToListAsync();
+                    .Where(t => t.TransactionDate.Date == normalizedDate.Date)
+                    .OrderByDescending(t => t.TransactionDate)
+                    .ToListAsync();
         }
 
         public async Task<IEnumerable<Transaction>> GetByPeriodAsync(DateTime startDate, DateTime endDate)
@@ -44,9 +44,10 @@ namespace CashFlowDailyBalance.Infra.Data.Repositories
             var normalizedEndDate = DateTime.SpecifyKind(endDate.Date, DateTimeKind.Utc);
             
             return await _context.Transactions
-                .Where(t => t.TransactionDate.Date >= normalizedStartDate.Date && t.TransactionDate.Date <= normalizedEndDate.Date)
-                .OrderByDescending(t => t.TransactionDate)
-                .ToListAsync();
+                    .Where(t => t.TransactionDate.Date >= normalizedStartDate.Date && 
+                               t.TransactionDate.Date <= normalizedEndDate.Date)
+                    .OrderByDescending(t => t.TransactionDate)
+                    .ToListAsync();
         }
     }
 }

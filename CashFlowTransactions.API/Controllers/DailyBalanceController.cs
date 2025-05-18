@@ -65,7 +65,6 @@ namespace CashFlowDailyBalance.API.Controllers
         {
             try
             {
-                // Limitar o tamanho máximo a 10
                 size = size > 10 ? 10 : size;
                 
                 var (items, totalCount, totalPages) = await _dailyBalanceService.GetPaginatedDailyBalancesAsync(page, size);

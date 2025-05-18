@@ -1,6 +1,7 @@
 using CashFlowDailyBalance.Application.Interfaces;
 using CashFlowDailyBalance.Application.Services;
 using CashFlowDailyBalance.Domain.Interfaces;
+using CashFlowDailyBalance.Infra.CrossCutting;
 using CashFlowDailyBalance.Infra.Data.Context;
 using CashFlowDailyBalance.Infra.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,9 @@ namespace CashFlowDailyBalance.Infra.IoC
             {
                 options.UseNpgsql(connectionString);
             }, ServiceLifetime.Scoped);
+
+            // Configuração dos serviços de infraestrutura transversal (cache, etc.)
+            services.AddCrossCuttingServices();
 
             // Repositories
             services.AddScoped<ITransactionRepository, TransactionRepository>();

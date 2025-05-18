@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CashFlowDailyBalance.Infra.CrossCutting\CashFlowDailyBalance.Infra.CrossCutting.csproj" />
     <ProjectReference Include="..\CashFlowDailyBalance.Infra.Data\CashFlowDailyBalance.Infra.Data.csproj" />
   </ItemGroup>
 

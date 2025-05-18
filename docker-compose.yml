@@ -21,6 +21,22 @@ services:
     networks:
       - cashflow-network
 
+  redis:
+    image: redis:alpine
+    container_name: cashflow-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - cashflow-network
+
   api:
     build:
       context: .
@@ -28,6 +44,8 @@ services:
     container_name: cashflow-daily-balance-api
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "5001:80" 
@@ -37,20 +55,22 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - APP_TYPE=api
-      - DB_HOST=10.0.0.188
+      - DB_HOST=postgres
       - DB_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-cashflow}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
 
     networks:
       - cashflow-network
-
-
 
 networks:
   cashflow-network:
     driver: bridge
 
 volumes:
-  postgres-data: 
+  postgres-data:
+  redis-data: 
