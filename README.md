@@ -2,6 +2,18 @@
 
 API para gerenciamento de fluxo de caixa e cálculo de balanço diário, desenvolvida em .NET 8.0 com arquitetura limpa.
 
+## Objetivo do Projeto
+
+O CashFlow Daily Balance tem como objetivo principal automatizar o registro e o cálculo de balanços diários a partir de transações financeiras. A aplicação:
+
+- Registra transações financeiras (créditos e débitos) com data, valor e descrição
+- Calcula automaticamente o balanço diário com base nessas transações
+- Atualiza os balanços diários de duas formas:
+  - **Automaticamente**: através de um serviço agendado que é executado a cada 1 hora, consolidando transações recentes
+  - **Manualmente**: permite atualizar pontualmente o balanço de uma data específica ou de um período
+- Disponibiliza consultas para análise financeira por períodos e datas específicas
+- Utiliza sistema de cache em múltiplas camadas para otimizar a performance
+
 ## Executando com Docker
 
 ### Pré-requisitos
@@ -34,7 +46,7 @@ Para iniciar a aplicação com Docker Compose:
 docker-compose up -d
 ```
 
-A API estará disponível em: http://localhost:8080/swagger
+A API estará disponível em: http://localhost:5001/swagger
 
 Para parar a aplicação:
 ```bash
@@ -92,9 +104,24 @@ A API estará disponível em: https://localhost:5001/swagger
 
 - Registro de transações financeiras (créditos e débitos)
 - Cálculo automático de balanço diário
+- Serviço agendado para atualização horária dos balanços
+- Endpoint para processamento manual de balanços de datas específicas
 - Consulta de balanços por data ou período
 - Cache em múltiplas camadas para maior performance (memória e Redis)
 - Gerenciamento eficiente de conexões com banco de dados
+
+## Fluxo de Processamento
+
+1. Transações financeiras são registradas no sistema com data, tipo (crédito/débito), valor e descrição
+2. O balanço diário pode ser calculado de duas formas:
+   - **Automaticamente**: A cada 1 hora, o serviço agendado (`DailyBalanceSchedulerService`) processa os balanços pendentes
+   - **Manualmente**: Através da API é possível solicitar o cálculo de balanço para uma data específica ou período
+3. O cálculo do balanço considera:
+   - Saldo do dia anterior (como saldo inicial)
+   - Soma de todas as transações de crédito do dia
+   - Soma de todas as transações de débito do dia
+   - Cálculo do saldo final (saldo anterior + créditos - débitos)
+4. Os resultados são armazenados no banco de dados e também em cache para consultas rápidas
 
 ## Dependências Principais
 
