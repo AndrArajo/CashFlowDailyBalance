@@ -1,0 +1,26 @@
+# Diretórios de desenvolvimento
+.git/
+.github/
+.vs/
+.vscode/
+
+# Arquivos de publicação e binários
+**/bin/
+**/obj/
+**/publish/
+
+# Diretórios de teste (não são necessários no container de produção)
+**/CashFlowDailyBalance.Domain.Tests/
+**/CashFlowDailyBalance.Application.Tests/
+**/CashFlowDailyBalance.Infra.Data.Tests/
+
+# Arquivos temporários
+**/temp/
+**/tmp/
+**/temp-files/
+
+# Outros arquivos não necessários
+**/*.md
+**/*.json
+!**/appsettings.json
+!**/appsettings.*.json 
