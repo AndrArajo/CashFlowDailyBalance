@@ -20,43 +20,85 @@ namespace CashFlowDailyBalance.Infra.CrossCutting.Caching
 
         public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiration = null)
         {
+            // Tentar obter do cache primeiro
             var value = await GetAsync<T>(key);
             if (value != null)
                 return value;
 
-            var semaphore = _locks.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
+            // Chave do bloqueio distribuído
+            string lockKey = $"lock:{key}";
+            string lockToken = Guid.NewGuid().ToString();
+            bool lockAcquired = false;
             
             try
             {
-                await semaphore.WaitAsync();
+                // Tentar obter o bloqueio distribuído (usando SETNX do Redis)
+                // Expiração no bloqueio para evitar deadlocks
+                lockAcquired = await _db.StringSetAsync(lockKey, lockToken, TimeSpan.FromSeconds(30), When.NotExists);
                 
-                value = await GetAsync<T>(key);
-                if (value != null)
+                if (lockAcquired)
+                {
+                    // Verificar o cache novamente após obter o bloqueio
+                    value = await GetAsync<T>(key);
+                    if (value != null)
+                        return value;
+                        
+                    // Executar factory e armazenar no cache
+                    value = await factory();
+                    await SetAsync(key, value, expiration);
                     return value;
-
-                value = await factory();
-                await SetAsync(key, value, expiration);
-                return value;
+                }
+                else
+                {
+                    // Esperar um pouco e tentar o cache novamente
+                    await Task.Delay(500);
+                    for (int i = 0; i < 5; i++) // tentar algumas vezes
+                    {
+                        value = await GetAsync<T>(key);
+                        if (value != null)
+                            return value;
+                        await Task.Delay(200); // pequeno intervalo entre verificações
+                    }
+                    
+                    value = await factory();
+                    return value;
+                }
             }
             finally
             {
-                semaphore.Release();
-                
-              
-                if (semaphore.CurrentCount == 1)
+                // Liberar o bloqueio se nós o adquirimos
+                // Importante: só liberar se o token for igual ao nosso (para evitar liberar bloqueio de outra instância)
+                if (lockAcquired)
                 {
-                    _locks.TryRemove(key, out _);
+                    var script = @"
+                        if redis.call('get', KEYS[1]) == ARGV[1] then
+                            return redis.call('del', KEYS[1])
+                        else
+                            return 0
+                        end";
+                    await _db.ScriptEvaluateAsync(script, new RedisKey[] { lockKey }, new RedisValue[] { lockToken });
                 }
             }
         }
 
-        public async Task<T> GetAsync<T>(string key)
+        public async Task<T?> GetAsync<T>(string key)
         {
             var redisValue = await _db.StringGetAsync(key);
             if (redisValue.IsNullOrEmpty)
                 return default;
 
-            return JsonConvert.DeserializeObject<T>(redisValue);
+            try
+            {
+                string? valueString = redisValue.ToString();
+                if (string.IsNullOrEmpty(valueString))
+                    return default;
+                    
+                return JsonConvert.DeserializeObject<T>(valueString);
+            }
+            catch
+            {
+                return default;
+            }
         }
 
         public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null)

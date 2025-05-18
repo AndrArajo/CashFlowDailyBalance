@@ -1,7 +1,9 @@
+using CashFlowDailyBalance.API.Models;
 using CashFlowDailyBalance.Application.DTOs;
 using CashFlowDailyBalance.Application.Interfaces;
 using CashFlowDailyBalance.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace CashFlowDailyBalance.API.Controllers
 {
@@ -21,45 +23,66 @@ namespace CashFlowDailyBalance.API.Controllers
         }
 
         [HttpGet("{date}")]
-        public async Task<ActionResult<DailyBalance>> GetDailyBalance(DateTime date)
+        [ProducesResponseType(typeof(ApiResponse<DailyBalance>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<DailyBalance>), 404)]
+        [ProducesResponseType(typeof(ApiResponse<DailyBalance>), 500)]
+        public async Task<ActionResult<ApiResponse<DailyBalance>>> GetDailyBalance(DateTime date)
         {
             try
             {
                 var dailyBalance = await _dailyBalanceService.GetDailyBalanceAsync(date);
                 if (dailyBalance == null)
-                    return NotFound($"Balanço para a data {date:dd/MM/yyyy} não encontrado");
+                {
+                    var notFoundResponse = ApiResponse<DailyBalance>.NotFound($"Balanço para a data {date:dd/MM/yyyy} não encontrado");
+                    return NotFound(notFoundResponse);
+                }
 
-                return Ok(dailyBalance);
+                var response = ApiResponse<DailyBalance>.Ok(dailyBalance, $"Balanço do dia {date:dd/MM/yyyy} obtido com sucesso");
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar balanço diário");
-                return StatusCode(500, "Erro interno do servidor");
+                var errorResponse = ApiResponse<DailyBalance>.Error("Erro interno do servidor");
+                return StatusCode(500, errorResponse);
             }
         }
 
         [HttpGet("period")]
-        public async Task<ActionResult<IEnumerable<DailyBalance>>> GetDailyBalancesByPeriod(
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<DailyBalance>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<DailyBalance>>), 400)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<DailyBalance>>), 500)]
+        public async Task<ActionResult<ApiResponse<IEnumerable<DailyBalance>>>> GetDailyBalancesByPeriod(
             [FromQuery] DateTime startDate, 
             [FromQuery] DateTime endDate)
         {
             try
             {
                 if (startDate > endDate)
-                    return BadRequest("A data inicial não pode ser maior que a data final");
+                {
+                    var badRequestResponse = ApiResponse<IEnumerable<DailyBalance>>.BadRequest("A data inicial não pode ser maior que a data final");
+                    return BadRequest(badRequestResponse);
+                }
 
                 var dailyBalances = await _dailyBalanceService.GetDailyBalancesByPeriodAsync(startDate, endDate);
-                return Ok(dailyBalances);
+                var response = ApiResponse<IEnumerable<DailyBalance>>.Ok(
+                    dailyBalances, 
+                    $"Balanços diários no período de {startDate:dd/MM/yyyy} a {endDate:dd/MM/yyyy} obtidos com sucesso"
+                );
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar balanços diários por período");
-                return StatusCode(500, "Erro interno do servidor");
+                var errorResponse = ApiResponse<IEnumerable<DailyBalance>>.Error("Erro interno do servidor");
+                return StatusCode(500, errorResponse);
             }
         }
 
         [HttpGet("paginated")]
-        public async Task<ActionResult<PaginatedResponseDto<DailyBalance>>> GetPaginatedDailyBalances(
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponseDto<DailyBalance>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponseDto<DailyBalance>>), 500)]
+        public async Task<ActionResult<ApiResponse<PaginatedResponseDto<DailyBalance>>>> GetPaginatedDailyBalances(
             [FromQuery] int page = 1, 
             [FromQuery] int size = 10)
         {
@@ -70,12 +93,17 @@ namespace CashFlowDailyBalance.API.Controllers
                 
                 var (items, totalCount, totalPages) = await _dailyBalanceService.GetPaginatedDailyBalancesAsync(page, size);
                 
-                var response = new PaginatedResponseDto<DailyBalance>(
+                var paginatedResponse = new PaginatedResponseDto<DailyBalance>(
                     items: items,
                     pageNumber: page,
                     pageSize: size,
                     totalCount: totalCount,
                     totalPages: totalPages
+                );
+
+                var response = ApiResponse<PaginatedResponseDto<DailyBalance>>.Ok(
+                    paginatedResponse, 
+                    $"Balanços diários paginados obtidos com sucesso. Página {page} de {totalPages}."
                 );
                 
                 return Ok(response);
@@ -83,34 +111,48 @@ namespace CashFlowDailyBalance.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar balanços diários paginados");
-                return StatusCode(500, "Erro interno do servidor");
+                var errorResponse = ApiResponse<PaginatedResponseDto<DailyBalance>>.Error("Erro interno do servidor");
+                return StatusCode(500, errorResponse);
             }
         }
 
         [HttpPost("process/{date}")]
-        public async Task<ActionResult<DailyBalance>> ProcessDailyBalance(DateTime date)
+        [ProducesResponseType(typeof(ApiResponse<DailyBalance>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<DailyBalance>), 500)]
+        public async Task<ActionResult<ApiResponse<DailyBalance>>> ProcessDailyBalance(DateTime date)
         {
             try
             {
                 var processedBalance = await _dailyBalanceService.ProcessDailyBalanceAsync(date);
-                return Ok(processedBalance);
+                var response = ApiResponse<DailyBalance>.Ok(
+                    processedBalance, 
+                    $"Balanço do dia {date:dd/MM/yyyy} processado com sucesso"
+                );
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao processar balanço diário");
-                return StatusCode(500, "Erro interno do servidor");
+                var errorResponse = ApiResponse<DailyBalance>.Error("Erro interno do servidor");
+                return StatusCode(500, errorResponse);
             }
         }
 
         [HttpPost("process-range")]
-        public async Task<ActionResult<IEnumerable<DailyBalance>>> ProcessDailyBalanceRange(
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<DailyBalance>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<DailyBalance>>), 400)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<DailyBalance>>), 500)]
+        public async Task<ActionResult<ApiResponse<IEnumerable<DailyBalance>>>> ProcessDailyBalanceRange(
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate)
         {
             try
             {
                 if (startDate > endDate)
-                    return BadRequest("A data inicial não pode ser maior que a data final");
+                {
+                    var badRequestResponse = ApiResponse<IEnumerable<DailyBalance>>.BadRequest("A data inicial não pode ser maior que a data final");
+                    return BadRequest(badRequestResponse);
+                }
 
                 var processedBalances = new List<DailyBalance>();
                 var currentDate = startDate;
@@ -122,23 +164,34 @@ namespace CashFlowDailyBalance.API.Controllers
                     currentDate = currentDate.AddDays(1);
                 }
 
-                return Ok(processedBalances);
+                var response = ApiResponse<IEnumerable<DailyBalance>>.Ok(
+                    processedBalances, 
+                    $"Balanços diários processados com sucesso no período de {startDate:dd/MM/yyyy} a {endDate:dd/MM/yyyy}"
+                );
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao processar balanços diários por período");
-                return StatusCode(500, "Erro interno do servidor");
+                var errorResponse = ApiResponse<IEnumerable<DailyBalance>>.Error("Erro interno do servidor");
+                return StatusCode(500, errorResponse);
             }
         }
 
         [HttpGet("summary/{date}")]
-        public async Task<ActionResult<DailyBalanceDto>> GetDailyBalanceSummary(DateTime date)
+        [ProducesResponseType(typeof(ApiResponse<DailyBalanceDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<DailyBalanceDto>), 404)]
+        [ProducesResponseType(typeof(ApiResponse<DailyBalanceDto>), 500)]
+        public async Task<ActionResult<ApiResponse<DailyBalanceDto>>> GetDailyBalanceSummary(DateTime date)
         {
             try
             {
                 var dailyBalance = await _dailyBalanceService.GetDailyBalanceAsync(date);
                 if (dailyBalance == null)
-                    return NotFound($"Balanço para a data {date:dd/MM/yyyy} não encontrado");
+                {
+                    var notFoundResponse = ApiResponse<DailyBalanceDto>.NotFound($"Balanço para a data {date:dd/MM/yyyy} não encontrado");
+                    return NotFound(notFoundResponse);
+                }
 
                 var dailyBalanceDto = new DailyBalanceDto(
                     date: dailyBalance.BalanceDate ?? DateTime.MinValue,
@@ -148,12 +201,17 @@ namespace CashFlowDailyBalance.API.Controllers
                     finalBalance: dailyBalance.FinalBalance
                 );
 
-                return Ok(dailyBalanceDto);
+                var response = ApiResponse<DailyBalanceDto>.Ok(
+                    dailyBalanceDto, 
+                    $"Resumo do balanço do dia {date:dd/MM/yyyy} obtido com sucesso"
+                );
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar resumo do balanço diário");
-                return StatusCode(500, "Erro interno do servidor");
+                var errorResponse = ApiResponse<DailyBalanceDto>.Error("Erro interno do servidor");
+                return StatusCode(500, errorResponse);
             }
         }
     }

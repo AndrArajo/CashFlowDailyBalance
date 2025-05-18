@@ -125,16 +125,7 @@ namespace CashFlowDailyBalance.Infra.Data.Repositories
             // Invalidate all cache
             await _cacheService.RemoveAsync($"{CACHE_KEY_PREFIX}all");
             
-            // Como não temos acesso ao método GetServer(), vamos remover apenas as chaves de cache mais comuns
-            // Remover cache da data específica - já feito acima
-            
-            // Remover cache de períodos que possam incluir essa data
-            // Como não temos uma lista de todos os períodos que possam incluir essa data, 
-            // poderíamos implementar uma estratégia mais sofisticada se necessário
-            
-            // Para facilitar a invalidação de cache paginado, podemos armazenar as chaves de paginação 
-            // em uma lista separada ou usar um padrão de chave que permita invalidação seletiva
-            // Por simplicidade, não estamos implementando essa funcionalidade agora
+    
         }
     }
 }

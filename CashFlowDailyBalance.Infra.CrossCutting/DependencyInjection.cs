@@ -1,5 +1,6 @@
 using CashFlowDailyBalance.Infra.CrossCutting.Caching;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace CashFlowDailyBalance.Infra.CrossCutting
 {
@@ -7,8 +8,19 @@ namespace CashFlowDailyBalance.Infra.CrossCutting
     {
         public static IServiceCollection AddCrossCuttingServices(this IServiceCollection services)
         {
-            // Adicionar serviço de cache
-            services.AddSingleton<ICacheService, RedisCacheService>();
+            services.AddMemoryCache(options =>
+            {
+                options.SizeLimit = 1024; // 1024 entradas
+                
+                options.ExpirationScanFrequency = TimeSpan.FromMinutes(1); // F
+                options.CompactionPercentage = 0.25; // 
+            });
+            
+            // Registrar o serviço Redis como singleton
+            services.AddSingleton<RedisCacheService>();
+            
+            // Registrar o serviço de cache em múltiplas camadas como implementação principal do ICacheService
+            services.AddSingleton<ICacheService, MultiLevelCacheService>();
             
             return services;
         }

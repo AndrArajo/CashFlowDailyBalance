@@ -1,3 +1,4 @@
+using CashFlowDailyBalance.API.Filters;
 using CashFlowDailyBalance.Infra.Data.Context;
 using CashFlowDailyBalance.Infra.IoC;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,11 @@ var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username=
 builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilter>();
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
