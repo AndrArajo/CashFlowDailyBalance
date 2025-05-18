@@ -1,4 +1,6 @@
+using CashFlowDailyBalance.Infra.Data.Context;
 using CashFlowDailyBalance.Infra.IoC;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using DotNetEnv;
 
@@ -59,6 +61,19 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+try
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

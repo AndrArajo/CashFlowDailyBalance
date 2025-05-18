@@ -1,4 +1,6 @@
+using CashFlowDailyBalance.Infra.Data.Context;
 using CashFlowDailyBalance.Infra.IoC;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using DotNetEnv;
 
@@ -59,6 +61,23 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Aplicar migrações automaticamente ao iniciar a aplicação
+try
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Console.WriteLine("Aplicando migrações ao banco de dados...");
+        dbContext.Database.Migrate();
+        Console.WriteLine("Migrações aplicadas com sucesso!");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
+    // Não interromper a aplicação caso ocorra um erro nas migrações
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
