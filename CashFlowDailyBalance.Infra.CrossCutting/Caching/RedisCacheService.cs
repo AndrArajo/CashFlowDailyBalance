@@ -32,13 +32,11 @@ namespace CashFlowDailyBalance.Infra.CrossCutting.Caching
             
             try
             {
-                // Tentar obter o bloqueio distribuído (usando SETNX do Redis)
-                // Expiração no bloqueio para evitar deadlocks
+      
                 lockAcquired = await _db.StringSetAsync(lockKey, lockToken, TimeSpan.FromSeconds(30), When.NotExists);
                 
                 if (lockAcquired)
                 {
-                    // Verificar o cache novamente após obter o bloqueio
                     value = await GetAsync<T>(key);
                     if (value != null)
                         return value;
@@ -51,13 +49,13 @@ namespace CashFlowDailyBalance.Infra.CrossCutting.Caching
                 else
                 {
                     // Esperar um pouco e tentar o cache novamente
-                    await Task.Delay(500);
+                    await Task.Delay(100);
                     for (int i = 0; i < 5; i++) // tentar algumas vezes
                     {
                         value = await GetAsync<T>(key);
                         if (value != null)
                             return value;
-                        await Task.Delay(200); // pequeno intervalo entre verificações
+                        await Task.Delay(50); 
                     }
                     
                     value = await factory();

@@ -48,7 +48,6 @@ namespace CashFlowDailyBalance.Infra.Data.Migrations
                     origin = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     transaction_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     message_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
