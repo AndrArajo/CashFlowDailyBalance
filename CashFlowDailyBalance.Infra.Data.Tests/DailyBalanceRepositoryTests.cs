@@ -16,7 +16,7 @@ namespace CashFlowDailyBalance.Infra.Data.Tests;
 public class DailyBalanceRepositoryTests
 {
     [Fact]
-    public async Task DailyBalanceRepository_SaveAsync_DeveAdicionarNovoBalanco()
+    public async Task SaveAsync_ShouldAddNewBalance()
     {
         // Arrange
         var context = CreateInMemoryContext();

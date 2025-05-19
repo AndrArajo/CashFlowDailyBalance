@@ -7,7 +7,7 @@ namespace CashFlowDailyBalance.Domain.Tests;
 public class TransactionTests
 {
     [Fact]
-    public void Transaction_DeveSerCriadoComSucesso()
+    public void Transaction_ShouldBeCreatedSuccessfully()
     {
         // Arrange
         var amount = 100.50m;
@@ -29,7 +29,7 @@ public class TransactionTests
     }
 
     [Fact]
-    public void Transaction_DeveSerCriadoComSucessoSemDescricaoEOrigem()
+    public void Transaction_ShouldBeCreatedSuccessfullyWithoutDescriptionAndOrigin()
     {
         // Arrange
         var amount = 50.25m;

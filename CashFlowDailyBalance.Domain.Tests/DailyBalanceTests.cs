@@ -6,7 +6,7 @@ namespace CashFlowDailyBalance.Domain.Tests;
 public class DailyBalanceTests
 {
     [Fact]
-    public void DailyBalance_DeveSerCriadoComSucesso()
+    public void DailyBalance_ShouldBeCreatedSuccessfully()
     {
         // Arrange
         var id = 1;

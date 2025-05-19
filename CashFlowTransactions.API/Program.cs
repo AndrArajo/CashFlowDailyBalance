@@ -87,6 +87,8 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+Console.WriteLine("Iniciando a aplicação Daily Balance...");
+
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseRouting();

@@ -22,7 +22,7 @@ public class TransactionRepositoryTests
     }
 
     [Fact]
-    public async Task GetByDateAsync_RetornaTransacoesDaDataEspecificada()
+    public async Task GetByDateAsync_ShouldReturnTransactionsForSpecificDate()
     {
         // Arrange
         using var context = CreateInMemoryContext();
@@ -52,7 +52,7 @@ public class TransactionRepositoryTests
     }
 
     [Fact]
-    public async Task GetByPeriodAsync_RetornaTransacoesNoIntervaloDeDataEspecificado()
+    public async Task GetByPeriodAsync_ShouldReturnTransactionsWithinDateRange()
     {
         // Arrange
         using var context = CreateInMemoryContext();

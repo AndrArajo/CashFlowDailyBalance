@@ -26,7 +26,7 @@ public class DailyBalanceServiceTests
     }
 
     [Fact]
-    public async Task ProcessDailyBalanceAsync_ComTransacoesNoMesmoDia_DeveCalcularBalancoCorretamente()
+    public async Task ProcessDailyBalanceAsync_WithTransactionsOnSameDay_ShouldCalculateBalanceCorrectly()
     {
         // Arrange
         var date = DateTime.UtcNow.Date;
@@ -75,7 +75,7 @@ public class DailyBalanceServiceTests
     }
 
     [Fact]
-    public async Task ProcessDailyBalanceAsync_SemBalancoAnterior_DeveUsarZeroComoSaldoAnterior()
+    public async Task ProcessDailyBalanceAsync_WithoutPreviousBalance_ShouldUseZeroAsPreviousBalance()
     {
         // Arrange
         var date = DateTime.UtcNow.Date;
