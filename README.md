@@ -14,6 +14,14 @@ O CashFlow Daily Balance tem como objetivo principal automatizar o registro e o 
 - Disponibiliza consultas para análise financeira por períodos e datas específicas
 - Utiliza sistema de cache em múltiplas camadas para otimizar a performance
 
+## CI/CD
+
+O projeto utiliza GitHub Actions para integração contínua e entrega contínua:
+
+- **Integração Contínua**: Testes automatizados são executados em cada push e pull request
+- **Entrega Contínua**: Builds bem-sucedidos na branch main são automaticamente publicados no DockerHub
+- **Imagem Docker**: Disponível em andrarajo/cashflow-dailybalance
+
 ## Executando com Docker
 
 ### Pré-requisitos
@@ -104,7 +112,7 @@ A API estará disponível em: https://localhost:5001/swagger
 
 - Registro de transações financeiras (créditos e débitos)
 - Cálculo automático de balanço diário
-- Serviço agendado para atualização horária dos balanços
+- Serviço agendado para atualização a cada 1 hora dos balanços
 - Endpoint para processamento manual de balanços de datas específicas
 - Consulta de balanços por data ou período
 - Cache em múltiplas camadas para maior performance (memória e Redis)
@@ -136,7 +144,39 @@ A API estará disponível em: https://localhost:5001/swagger
 
 A aplicação segue os princípios de Clean Architecture:
 
-- **Domain**: Entidades e regras de negócio
-- **Application**: Serviços de aplicação, DTOs e interfaces
-- **Infrastructure**: Implementações de repositórios, contexto de banco de dados e serviços transversais
-- **API**: Controllers e configuração da aplicação 
+- **CashFlowDailyBalance.Domain**: 
+  - Entidades e regras de negócio
+  - Interfaces de repositórios
+  - Enums e definições de domínio
+
+- **CashFlowDailyBalance.Application**: 
+  - Serviços de aplicação
+  - DTOs e interfaces
+  - Mapeamentos
+  - Serviços agendados
+
+- **CashFlowDailyBalance.Infra.Data**: 
+  - Implementações de repositórios
+  - Contexto de banco de dados 
+  - Configurações de entidades
+  - Migrações
+
+- **CashFlowDailyBalance.Infra.CrossCutting**: 
+  - Serviços transversais
+  - Cache
+  - Logging
+  - Utilidades
+
+- **CashFlowDailyBalance.Infra.IoC**: 
+  - Configuração de injeção de dependências
+  - Registro de serviços
+
+- **CashFlowDailyBalance.API**: 
+  - Controllers
+  - Configuração da aplicação
+  - Middlewares
+  - Filtros
+
+- **CashFlowDailyBalance.*.Tests**: 
+  - Testes unitários
+  - Mocks e fixtures 
