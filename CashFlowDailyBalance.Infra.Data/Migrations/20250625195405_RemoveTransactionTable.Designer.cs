@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CashFlowDailyBalance.Infra.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250517133735_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250625195405_RemoveTransactionTable")]
+    partial class RemoveTransactionTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,8 +70,6 @@ namespace CashFlowDailyBalance.Infra.Data.Migrations
 
                     b.ToTable("daily_balances", (string)null);
                 });
-
-
 #pragma warning restore 612, 618
         }
     }

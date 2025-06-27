@@ -7,12 +7,12 @@ namespace CashFlowDailyBalance.Application.Services
 {
     public class DailyBalanceService : IDailyBalanceService
     {
-        private readonly ITransactionRepository _transactionRepository;
+        private readonly IExternalTransactionService _externalTransactionService;
         private readonly IDailyBalanceRepository _dailyBalanceRepository;
 
-        public DailyBalanceService(ITransactionRepository transactionRepository, IDailyBalanceRepository dailyBalanceRepository)
+        public DailyBalanceService(IExternalTransactionService externalTransactionService, IDailyBalanceRepository dailyBalanceRepository)
         {
-            _transactionRepository = transactionRepository;
+            _externalTransactionService = externalTransactionService;
             _dailyBalanceRepository = dailyBalanceRepository;
         }
 
@@ -20,7 +20,7 @@ namespace CashFlowDailyBalance.Application.Services
         {
             var normalizedDate = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
             
-            var transactions = await _transactionRepository.GetByDateAsync(normalizedDate);
+            var transactions = await _externalTransactionService.GetByDateAsync(normalizedDate);
             
             decimal totalCredits = transactions
                 .Where(t => t.Type == TransactionType.Credit)

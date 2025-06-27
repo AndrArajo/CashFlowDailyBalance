@@ -12,16 +12,16 @@ namespace CashFlowDailyBalance.Application.Tests;
 
 public class DailyBalanceServiceTests
 {
-    private readonly Mock<ITransactionRepository> _transactionRepositoryMock;
+    private readonly Mock<IExternalTransactionService> _externalTransactionServiceMock;
     private readonly Mock<IDailyBalanceRepository> _dailyBalanceRepositoryMock;
     private readonly DailyBalanceService _dailyBalanceService;
 
     public DailyBalanceServiceTests()
     {
-        _transactionRepositoryMock = new Mock<ITransactionRepository>();
+        _externalTransactionServiceMock = new Mock<IExternalTransactionService>();
         _dailyBalanceRepositoryMock = new Mock<IDailyBalanceRepository>();
         _dailyBalanceService = new DailyBalanceService(
-            _transactionRepositoryMock.Object,
+            _externalTransactionServiceMock.Object,
             _dailyBalanceRepositoryMock.Object);
     }
 
@@ -38,7 +38,7 @@ public class DailyBalanceServiceTests
             new Transaction(30m, TransactionType.Debit, date, "Débito 1")
         };
 
-        _transactionRepositoryMock.Setup(x => x.GetByDateAsync(date))
+        _externalTransactionServiceMock.Setup(x => x.GetByDateAsync(date))
             .ReturnsAsync(transactions);
 
         var previousDayBalance = new DailyBalance(
@@ -69,7 +69,7 @@ public class DailyBalanceServiceTests
         Assert.Equal(150m, result.TotalCredits);
         Assert.Equal(30m, result.TotalDebits);
 
-        _transactionRepositoryMock.Verify(x => x.GetByDateAsync(date), Times.Once);
+        _externalTransactionServiceMock.Verify(x => x.GetByDateAsync(date), Times.Once);
         _dailyBalanceRepositoryMock.Verify(x => x.GetAllAsync(), Times.Once);
         _dailyBalanceRepositoryMock.Verify(x => x.SaveAsync(It.IsAny<DailyBalance>()), Times.Once);
     }
@@ -86,7 +86,7 @@ public class DailyBalanceServiceTests
             new Transaction(30m, TransactionType.Debit, date, "Débito 1")
         };
 
-        _transactionRepositoryMock.Setup(x => x.GetByDateAsync(date))
+        _externalTransactionServiceMock.Setup(x => x.GetByDateAsync(date))
             .ReturnsAsync(transactions);
 
         var allBalances = new List<DailyBalance>(); // Lista vazia, sem balanço anterior

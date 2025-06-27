@@ -67,51 +67,6 @@ namespace CashFlowDailyBalance.Infra.Data.Migrations
 
                     b.ToTable("daily_balances", (string)null);
                 });
-
-            modelBuilder.Entity("CashFlowDailyBalance.Domain.Entities.Transaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Origin")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("origin");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("transaction_date");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer")
-                        .HasColumnName("type");
-
-                    b.Property<string>("MessageId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("message_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("transactions", (string)null);
-                });
 #pragma warning restore 612, 618
         }
     }

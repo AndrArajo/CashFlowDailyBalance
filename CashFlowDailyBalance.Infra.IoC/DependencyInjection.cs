@@ -4,6 +4,7 @@ using CashFlowDailyBalance.Domain.Interfaces;
 using CashFlowDailyBalance.Infra.CrossCutting;
 using CashFlowDailyBalance.Infra.Data.Context;
 using CashFlowDailyBalance.Infra.Data.Repositories;
+using CashFlowDailyBalance.Infra.External;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,8 +59,10 @@ namespace CashFlowDailyBalance.Infra.IoC
             services.AddCrossCuttingServices();
 
             // Repositories
-            services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IDailyBalanceRepository, DailyBalanceRepository>();
+
+            // External Services
+            services.AddExternalServices();
 
             // Services
             services.AddScoped<IDailyBalanceService, DailyBalanceService>();
