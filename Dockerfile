@@ -11,6 +11,7 @@ COPY CashFlowDailyBalance.Domain/*.csproj ./CashFlowDailyBalance.Domain/
 COPY CashFlowDailyBalance.Infra.Data/*.csproj ./CashFlowDailyBalance.Infra.Data/
 COPY CashFlowDailyBalance.Infra.IoC/*.csproj ./CashFlowDailyBalance.Infra.IoC/
 COPY CashFlowDailyBalance.Infra.CrossCutting/*.csproj ./CashFlowDailyBalance.Infra.CrossCutting/
+COPY CashFlowDailyBalance.Infra.External/*.csproj ./CashFlowDailyBalance.Infra.External/
 
 # Restaurar pacotes apenas para a aplicação principal
 RUN dotnet restore CashFlowDailyBalance.API/CashFlowDailyBalance.API.csproj
@@ -22,6 +23,7 @@ COPY CashFlowDailyBalance.Domain/. ./CashFlowDailyBalance.Domain/
 COPY CashFlowDailyBalance.Infra.Data/. ./CashFlowDailyBalance.Infra.Data/
 COPY CashFlowDailyBalance.Infra.IoC/. ./CashFlowDailyBalance.Infra.IoC/
 COPY CashFlowDailyBalance.Infra.CrossCutting/. ./CashFlowDailyBalance.Infra.CrossCutting/
+COPY CashFlowDailyBalance.Infra.External/. ./CashFlowDailyBalance.Infra.External/
 
 # Publicar a API
 RUN dotnet publish CashFlowDailyBalance.API/CashFlowDailyBalance.API.csproj -c Release -o /app/publish/api
