@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using CashFlowDailyBalance.Domain.Entities;
 using CashFlowDailyBalance.Domain.Interfaces;
+using CashFlowDailyBalance.Infra.External.DTOs;
 
 namespace CashFlowDailyBalance.Infra.External.Services
 {
@@ -19,10 +20,16 @@ namespace CashFlowDailyBalance.Infra.External.Services
         {
             _httpClient = httpClient;
             _logger = logger;
-            _baseUrl = configuration.GetConnectionString("TransactionApiUrl") 
-                       ?? throw new ArgumentNullException(nameof(configuration), "TransactionApiUrl não configurada");
+            _baseUrl = configuration["TRANSACTION_API_URL"] 
+                       ?? configuration["TransactionApiUrl"] 
+                       ?? configuration["ConnectionStrings:TransactionApiUrl"]
+                       ?? "cashflow-transaction";
 
-            _httpClient.BaseAddress = new Uri(_baseUrl);
+            // Não define BaseAddress aqui pois o HttpClient pode ser compartilhado
+            if (_httpClient.BaseAddress == null && !string.IsNullOrEmpty(_baseUrl))
+            {
+                _httpClient.BaseAddress = new Uri(_baseUrl);
+            }
         }
 
         public async Task<IEnumerable<Transaction>> GetAllAsync()
@@ -31,14 +38,11 @@ namespace CashFlowDailyBalance.Infra.External.Services
             {
                 _logger.LogInformation("Buscando todas as transações da API externa");
                 
-                var response = await _httpClient.GetAsync("/api/Transactions");
-                response.EnsureSuccessStatusCode();
-
-                var transactions = await response.Content.ReadFromJsonAsync<IEnumerable<Transaction>>();
+                var allTransactions = await GetAllPagesAsync("/api/Transaction");
                 
-                _logger.LogInformation("Foram encontradas {Count} transações", transactions?.Count() ?? 0);
+                _logger.LogInformation("Foram encontradas {Count} transações", allTransactions.Count());
                 
-                return transactions ?? Enumerable.Empty<Transaction>();
+                return allTransactions;
             }
             catch (HttpRequestException ex)
             {
@@ -52,6 +56,48 @@ namespace CashFlowDailyBalance.Infra.External.Services
             }
         }
 
+        private async Task<List<Transaction>> GetAllPagesAsync(string endpoint)
+        {
+            var allTransactions = new List<Transaction>();
+            var pageNumber = 1;
+            bool hasMorePages = true;
+
+            while (hasMorePages)
+            {
+                var pageEndpoint = $"{endpoint}?pageNumber={pageNumber}&pageSize=100";
+                var url = _httpClient.BaseAddress != null ? pageEndpoint : $"{_baseUrl}{pageEndpoint}";
+                
+                _logger.LogInformation("Buscando página {PageNumber} do endpoint {Endpoint}", pageNumber, endpoint);
+                
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponseDto<PaginatedDataDto<TransactionDto>>>();
+                
+                if (apiResponse?.Success == true && apiResponse.Data?.Items != null)
+                {
+                    var transactions = apiResponse.Data.Items.Select(dto => dto.ToTransaction()).ToList();
+                    allTransactions.AddRange(transactions);
+                    
+                    hasMorePages = apiResponse.Data.HasNextPage;
+                    pageNumber++;
+                    
+                    _logger.LogInformation("Página {PageNumber}: {Count} transações encontradas", 
+                        pageNumber - 1, transactions.Count);
+                }
+                else
+                {
+                    hasMorePages = false;
+                    if (apiResponse?.Success != true)
+                    {
+                        _logger.LogWarning("API retornou success=false: {Message}", apiResponse?.Message);
+                    }
+                }
+            }
+
+            return allTransactions;
+        }
+
         public async Task<IEnumerable<Transaction>> GetByDateAsync(DateTime date)
         {
             try
@@ -59,15 +105,13 @@ namespace CashFlowDailyBalance.Infra.External.Services
                 _logger.LogInformation("Buscando transações da API externa para a data {Date}", date.Date);
                 
                 var dateString = date.ToString("yyyy-MM-dd");
-                var response = await _httpClient.GetAsync($"/api/Transactions?date={dateString}");
-                response.EnsureSuccessStatusCode();
-
-                var transactions = await response.Content.ReadFromJsonAsync<IEnumerable<Transaction>>();
+                var endpoint = $"/api/Transaction?date={dateString}";
+                var allTransactions = await GetAllPagesAsync(endpoint);
                 
                 _logger.LogInformation("Foram encontradas {Count} transações para a data {Date}", 
-                    transactions?.Count() ?? 0, date.Date);
+                    allTransactions.Count(), date.Date);
                 
-                return transactions ?? Enumerable.Empty<Transaction>();
+                return allTransactions;
             }
             catch (HttpRequestException ex)
             {
@@ -90,15 +134,13 @@ namespace CashFlowDailyBalance.Infra.External.Services
                 
                 var startDateString = startDate.ToString("yyyy-MM-dd");
                 var endDateString = endDate.ToString("yyyy-MM-dd");
-                var response = await _httpClient.GetAsync($"/api/Transactions?startDate={startDateString}&endDate={endDateString}");
-                response.EnsureSuccessStatusCode();
-
-                var transactions = await response.Content.ReadFromJsonAsync<IEnumerable<Transaction>>();
+                var endpoint = $"/api/Transaction?startDate={startDateString}&endDate={endDateString}";
+                var allTransactions = await GetAllPagesAsync(endpoint);
                 
                 _logger.LogInformation("Foram encontradas {Count} transações para o período {StartDate} - {EndDate}", 
-                    transactions?.Count() ?? 0, startDate.Date, endDate.Date);
+                    allTransactions.Count(), startDate.Date, endDate.Date);
                 
-                return transactions ?? Enumerable.Empty<Transaction>();
+                return allTransactions;
             }
             catch (HttpRequestException ex)
             {
