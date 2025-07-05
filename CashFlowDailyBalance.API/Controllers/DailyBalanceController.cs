@@ -79,39 +79,28 @@ namespace CashFlowDailyBalance.API.Controllers
             }
         }
 
-        [HttpGet("paginated")]
-        [ProducesResponseType(typeof(ApiResponse<PaginatedResponseDto<DailyBalance>>), 200)]
-        [ProducesResponseType(typeof(ApiResponse<PaginatedResponseDto<DailyBalance>>), 500)]
-        public async Task<ActionResult<ApiResponse<PaginatedResponseDto<DailyBalance>>>> GetPaginatedDailyBalances(
-            [FromQuery] int page = 1, 
-            [FromQuery] int size = 10)
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponseDto<DailyBalanceDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponseDto<DailyBalanceDto>>), 500)]
+        public async Task<ActionResult<ApiResponse<PaginatedResponseDto<DailyBalanceDto>>>> GetDailyBalances(
+            [FromQuery] int pageNumber = 1, 
+            [FromQuery] int pageSize = 10)
         {
             try
             {
-                // Limitar o tamanho máximo a 10
-                size = size > 10 ? 10 : size;
-                
-                var (items, totalCount, totalPages) = await _dailyBalanceService.GetPaginatedDailyBalancesAsync(page, size);
-                
-                var paginatedResponse = new PaginatedResponseDto<DailyBalance>(
-                    items: items,
-                    pageNumber: page,
-                    pageSize: size,
-                    totalCount: totalCount,
-                    totalPages: totalPages
-                );
+                var paginatedResult = await _dailyBalanceService.GetDailyBalancesAsync(pageNumber, pageSize);
 
-                var response = ApiResponse<PaginatedResponseDto<DailyBalance>>.Ok(
-                    paginatedResponse, 
-                    $"Balanços diários paginados obtidos com sucesso. Página {page} de {totalPages}."
+                var response = ApiResponse<PaginatedResponseDto<DailyBalanceDto>>.Ok(
+                    paginatedResult, 
+                    $"Balanços diários obtidos com sucesso. Página {paginatedResult.PageNumber} de {paginatedResult.TotalPages}."
                 );
                 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar balanços diários paginados");
-                var errorResponse = ApiResponse<PaginatedResponseDto<DailyBalance>>.Error("Erro interno do servidor");
+                _logger.LogError(ex, "Erro ao buscar balanços diários");
+                var errorResponse = ApiResponse<PaginatedResponseDto<DailyBalanceDto>>.Error("Erro interno do servidor");
                 return StatusCode(500, errorResponse);
             }
         }

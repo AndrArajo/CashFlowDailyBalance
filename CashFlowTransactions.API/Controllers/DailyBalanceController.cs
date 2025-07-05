@@ -58,30 +58,20 @@ namespace CashFlowDailyBalance.API.Controllers
             }
         }
 
-        [HttpGet("paginated")]
-        public async Task<ActionResult<PaginatedResponseDto<DailyBalance>>> GetPaginatedDailyBalances(
-            [FromQuery] int page = 1, 
-            [FromQuery] int size = 10)
+        [HttpGet]
+        public async Task<ActionResult<PaginatedResponseDto<DailyBalanceDto>>> GetDailyBalances(
+            [FromQuery] int pageNumber = 1, 
+            [FromQuery] int pageSize = 10)
         {
             try
             {
-                size = size > 10 ? 10 : size;
+                var paginatedResult = await _dailyBalanceService.GetDailyBalancesAsync(pageNumber, pageSize);
                 
-                var (items, totalCount, totalPages) = await _dailyBalanceService.GetPaginatedDailyBalancesAsync(page, size);
-                
-                var response = new PaginatedResponseDto<DailyBalance>(
-                    items: items,
-                    pageNumber: page,
-                    pageSize: size,
-                    totalCount: totalCount,
-                    totalPages: totalPages
-                );
-                
-                return Ok(response);
+                return Ok(paginatedResult);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar balanços diários paginados");
+                _logger.LogError(ex, "Erro ao buscar balanços diários");
                 return StatusCode(500, "Erro interno do servidor");
             }
         }

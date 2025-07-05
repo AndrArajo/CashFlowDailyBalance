@@ -1,3 +1,4 @@
+using CashFlowDailyBalance.Application.DTOs;
 using CashFlowDailyBalance.Domain.Entities;
 
 namespace CashFlowDailyBalance.Application.Interfaces
@@ -13,6 +14,6 @@ namespace CashFlowDailyBalance.Application.Interfaces
 
         Task<IEnumerable<DailyBalance>> GetDailyBalancesByPeriodAsync(DateTime startDate, DateTime endDate);
         
-        Task<(IEnumerable<DailyBalance> Items, int TotalCount, int TotalPages)> GetPaginatedDailyBalancesAsync(int pageNumber, int pageSize);
+        Task<PaginatedResponseDto<DailyBalanceDto>> GetDailyBalancesAsync(int pageNumber, int pageSize);
     }
 } 

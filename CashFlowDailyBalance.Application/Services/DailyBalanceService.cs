@@ -1,3 +1,4 @@
+using CashFlowDailyBalance.Application.DTOs;
 using CashFlowDailyBalance.Application.Interfaces;
 using CashFlowDailyBalance.Domain.Entities;
 using CashFlowDailyBalance.Domain.Enums;
@@ -71,16 +72,33 @@ namespace CashFlowDailyBalance.Application.Services
                 b.BalanceDate?.Date <= normalizedEndDate.Date);
         }
         
-        public async Task<(IEnumerable<DailyBalance> Items, int TotalCount, int TotalPages)> GetPaginatedDailyBalancesAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResponseDto<DailyBalanceDto>> GetDailyBalancesAsync(int pageNumber, int pageSize)
         {
+            // Validar e normalizar valores de paginação
             pageNumber = pageNumber <= 0 ? 1 : pageNumber;
-            pageSize = pageSize <= 0 || pageSize > 10 ? 10 : pageSize;
+            pageSize = pageSize <= 0 ? 10 : pageSize;
+            pageSize = pageSize > 100 ? 100 : pageSize; // Limitar máximo
             
             var (items, totalCount) = await _dailyBalanceRepository.GetPaginatedAsync(pageNumber, pageSize);
             
             int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             
-            return (items, totalCount, totalPages);
+            // Mapear manualmente para DTOs
+            var dailyBalanceDtos = items.Select(db => new DailyBalanceDto(
+                db.BalanceDate ?? DateTime.MinValue,
+                db.PreviousBalance,
+                db.TotalCredits,
+                db.TotalDebits,
+                db.FinalBalance
+            )).ToList();
+            
+            // Retornar resultado paginado com valores normalizados
+            return new PaginatedResponseDto<DailyBalanceDto>(
+                dailyBalanceDtos,
+                pageNumber,
+                pageSize,
+                totalCount,
+                totalPages);
         }
     }
 } 
