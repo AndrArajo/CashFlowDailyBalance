@@ -23,7 +23,7 @@ namespace CashFlowDailyBalance.Infra.External.Services
             _baseUrl = configuration["TRANSACTION_API_URL"] 
                        ?? configuration["TransactionApiUrl"] 
                        ?? configuration["ConnectionStrings:TransactionApiUrl"]
-                       ?? "cashflow-transaction";
+                       ?? "http://cashflow-transaction";
 
             // Não define BaseAddress aqui pois o HttpClient pode ser compartilhado
             if (_httpClient.BaseAddress == null && !string.IsNullOrEmpty(_baseUrl))
