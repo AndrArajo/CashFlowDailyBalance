@@ -108,14 +108,14 @@ namespace CashFlowDailyBalance.Infra.External.Services
 
                         hasMorePages = response.HasNextPage;
                         pageNumber++;
-                        
-                    //    _logger.LogDebug("Processadas {TransactionCount} transações da página {CurrentPage}", 
-                       //     transctions.Count(), pageNumber - 1);
+
+                        _logger.LogDebug("Processadas {TransactionCount} transações da página {CurrentPage}",
+                            transctions.Count(), pageNumber - 1);
                     }
                     else
                     {
                         hasMorePages = false;
-                    //    _logger.LogDebug("Nenhum item retornado na página {PageNumber}, finalizando busca", pageNumber);
+                        _logger.LogDebug("Nenhum item retornado na página {PageNumber}, finalizando busca", pageNumber);
                     }
                 }
                 catch (Grpc.Core.RpcException ex)
@@ -127,8 +127,8 @@ namespace CashFlowDailyBalance.Infra.External.Services
                 {
                     stopwatch.Stop();
                     hasMorePages = false;
-                   //  _logger.LogError(ex, "Erro inesperado ao buscar página {PageNumber} em {ElapsedMs}ms", 
-                    //      pageNumber, stopwatch.ElapsedMilliseconds);
+                    _logger.LogError(ex, "Erro inesperado ao buscar página {PageNumber} em {ElapsedMs}ms",
+                         pageNumber, stopwatch.ElapsedMilliseconds);
                     throw;
                 }
             }

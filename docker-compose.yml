@@ -97,6 +97,7 @@ services:
       - REDIS_PORT=${REDIS_PORT:-6379}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
       - TRANSACTION_API_URL=${TRANSACTION_API_URL:-http://cashflow-transaction}
+      - TRANSACTION_GRPC_URL=${TRANSACTION_GRPC_URL:-http://cashflow-transaction:5052}
     networks:
       - cashflow-network
 
