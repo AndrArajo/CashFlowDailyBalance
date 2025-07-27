@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using CashFlowDailyBalance.Domain.Entities;
 using CashFlowDailyBalance.Domain.Interfaces;
 using CashFlowDailyBalance.Infra.External.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 namespace CashFlowDailyBalance.Infra.External.Services
 {
@@ -12,16 +13,18 @@ namespace CashFlowDailyBalance.Infra.External.Services
         private readonly HttpClient _httpClient;
         private readonly ILogger<ExternalTransactionService> _logger;
         private readonly string _baseUrl;
+        private readonly CashFlowTransactions.GrpcService.TransactionService.TransactionServiceClient _transactionServiceClient;
 
         public ExternalTransactionService(
             HttpClient httpClient,
             IConfiguration configuration,
-            ILogger<ExternalTransactionService> logger)
+            ILogger<ExternalTransactionService> logger,
+            CashFlowTransactions.GrpcService.TransactionService.TransactionServiceClient transactionServiceClient)
         {
             _httpClient = httpClient;
             _logger = logger;
-            _baseUrl = configuration["TRANSACTION_API_URL"] 
-                       ?? configuration["TransactionApiUrl"] 
+            _baseUrl = configuration["TRANSACTION_API_URL"]
+                       ?? configuration["TransactionApiUrl"]
                        ?? configuration["ConnectionStrings:TransactionApiUrl"]
                        ?? "http://cashflow-transaction";
 
@@ -30,6 +33,8 @@ namespace CashFlowDailyBalance.Infra.External.Services
             {
                 _httpClient.BaseAddress = new Uri(_baseUrl);
             }
+
+            _transactionServiceClient = transactionServiceClient;
         }
 
         public async Task<IEnumerable<Transaction>> GetAllAsync()
@@ -62,38 +67,74 @@ namespace CashFlowDailyBalance.Infra.External.Services
             var pageNumber = 1;
             bool hasMorePages = true;
 
+            _logger.LogInformation("Iniciando busca paginada via gRPC - Endpoint: {Endpoint}", endpoint);
+
             while (hasMorePages)
             {
-                var pageEndpoint = $"{endpoint}?pageNumber={pageNumber}&pageSize=100";
-                var url = _httpClient.BaseAddress != null ? pageEndpoint : $"{_baseUrl}{pageEndpoint}";
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 
-                _logger.LogInformation("Buscando página {PageNumber} do endpoint {Endpoint}", pageNumber, endpoint);
-                
-                var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponseDto<PaginatedDataDto<TransactionDto>>>();
-                
-                if (apiResponse?.Success == true && apiResponse.Data?.Items != null)
+                try
                 {
-                    var transactions = apiResponse.Data.Items.Select(dto => dto.ToTransaction()).ToList();
-                    allTransactions.AddRange(transactions);
-                    
-                    hasMorePages = apiResponse.Data.HasNextPage;
-                    pageNumber++;
-                    
-                    _logger.LogInformation("Página {PageNumber}: {Count} transações encontradas", 
-                        pageNumber - 1, transactions.Count);
-                }
-                else
-                {
-                    hasMorePages = false;
-                    if (apiResponse?.Success != true)
+                    var request = new CashFlowTransactions.GrpcService.GetTransactionsRequest
                     {
-                        _logger.LogWarning("API retornou success=false: {Message}", apiResponse?.Message);
+                        PageNumber = pageNumber,
+                        PageSize = 100
+                    };
+                    
+                    _logger.LogDebug("Executando chamada gRPC GetTransactions - Página: {PageNumber}, PageSize: {PageSize}", 
+                        pageNumber, request.PageSize);
+                    
+                    var response = await _transactionServiceClient.GetTransactionsAsync(request);
+                    
+                    stopwatch.Stop();
+                    
+                    _logger.LogDebug("Chamada gRPC concluída em {ElapsedMs}ms - Página: {PageNumber}, Itens retornados: {ItemCount}, Tem próxima página: {HasNextPage}", 
+                        stopwatch.ElapsedMilliseconds, pageNumber, response.Items.Count, response.HasNextPage);
+
+                    if (response.Items.Count > 0)
+                    {
+                        var transctions = response.Items.Select(dto => new Transaction
+                        {
+                            Id = dto.Id,
+                            Description = dto.Description, 
+                            Amount = (decimal) dto.Amount,
+                            CreatedAt = dto.CreatedAt.ToDateTime(),
+                            Origin = dto.Origin,
+                            TransactionDate = dto.TransactionDate.ToDateTime(),
+                            Type = (Domain.Enums.TransactionType) dto.Type,
+                           
+                        });
+                        allTransactions.AddRange(transctions);
+
+                        hasMorePages = response.HasNextPage;
+                        pageNumber++;
+                        
+                    //    _logger.LogDebug("Processadas {TransactionCount} transações da página {CurrentPage}", 
+                       //     transctions.Count(), pageNumber - 1);
+                    }
+                    else
+                    {
+                        hasMorePages = false;
+                    //    _logger.LogDebug("Nenhum item retornado na página {PageNumber}, finalizando busca", pageNumber);
                     }
                 }
+                catch (Grpc.Core.RpcException ex)
+                {
+                    stopwatch.Stop();
+                    hasMorePages = false;
+                }
+                catch (Exception ex)
+                {
+                    stopwatch.Stop();
+                    hasMorePages = false;
+                   //  _logger.LogError(ex, "Erro inesperado ao buscar página {PageNumber} em {ElapsedMs}ms", 
+                    //      pageNumber, stopwatch.ElapsedMilliseconds);
+                    throw;
+                }
             }
+
+            _logger.LogInformation("Busca paginada via gRPC concluída - Total de transações: {TotalCount}, Páginas processadas: {PagesProcessed}", 
+                allTransactions.Count, pageNumber - 1);
 
             return allTransactions;
         }
